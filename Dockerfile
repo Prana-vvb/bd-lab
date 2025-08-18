@@ -34,7 +34,7 @@ RUN chmod +x /entrypoint.sh
 USER ${username}
 WORKDIR /home/${username}
 
-RUN curl https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz -o hadoop-3.3.6.tar.gz && \
+RUN wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz && \
     tar xzf hadoop-3.3.6.tar.gz && rm hadoop-3.3.6.tar.gz
 
 RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
@@ -43,9 +43,11 @@ RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
 
 RUN mkdir -p tmpdata dfsdata/datanode dfsdata/namenode
 
-COPY --chown=${username}:${username} ./config/bashrc.temp /home/${username}/.bashrc.temp
-RUN envsubst < /home/${username}/.bashrc.temp > /home/${username}/.bashrc && \
-    rm /home/$username/.bashrc.temp
+COPY --chown=${username}:${username} ./config/hadoop_paths /home/${username}/hadoop_paths
+RUN envsubst < /home/${username}/hadoop_paths > /home/${username}/.hadoop_paths && \
+    rm /home/$username/hadoop_paths
+
+COPY --chown=${username}:${username} ./config/bashrc /home/${username}/.bashrc
 
 COPY --chown=${username}:${username} \
     ./config/hadoop-env.sh \
