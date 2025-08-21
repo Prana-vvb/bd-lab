@@ -17,6 +17,7 @@ RUN apt install -y \
     sudo \
     curl \
     git \
+    unzip \
     neovim \
     openjdk-8-jdk \
     openssh-server \

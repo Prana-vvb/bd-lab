@@ -8,6 +8,10 @@
   <value>org.apache.hadoop.mapred.ShuffleHandler</value>
 </property>
 <property>
+    <name>yarn.resourcemanager.webapp.address</name>
+    <value>0.0.0.0:8088</value>
+</property>
+<property>
   <name>yarn.resourcemanager.hostname</name>
   <value>127.0.0.1</value>
 </property>
