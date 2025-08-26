@@ -12,7 +12,7 @@ Comes installed with
 
 ## Build
 
-Required to run only once
+Required to run only once unless changes made to `config/` or the Dockerfile
 
 ```bash
 docker build --build-arg username=<your srn in lowercase> --build-arg password=<your password> -t bdlab .
