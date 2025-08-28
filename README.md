@@ -1,7 +1,7 @@
 Comes installed with
 
-- [x] Hadoop
-- [ ] Hive
+- [x] Hadoop v3.6.6
+- [x] Hive v3.1.3
 - [ ] Spark
 - [ ] Kafka
 
@@ -25,3 +25,12 @@ docker run -it --rm -h <your srn as given in usernme> -v bdata:/home -p 9870:987
 ```
 
 Follow Step 4 onwards from [Hadoop installation guide](https://pesubigdata2025.super.site/hadoop-installation-guide)
+
+> [!NOTE]
+> If rebuilding, (due to updates to the Dockerfile)
+> you may have to remove the volume(`docker volume rm bdata`) and create a new one as the changes will be overwritten by the volume.
+>
+> Thus, it is recommended to temporarily create a copy of what you want to keep using `docker cp <Container ID>:/path/to/files /path/in/host/machine`
+> and then copy it back to the container.
+>
+> You can find the container ID using `docker ps`
