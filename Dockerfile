@@ -35,7 +35,7 @@ RUN chmod +x /entrypoint.sh
 
 USER ${username}
 WORKDIR /home/${username}
-RUN mkdir .scripts
+RUN mkdir -p tmpdata dfsdata/datanode dfsdata/namenode .scripts
 
 RUN wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz && \
     tar xzf hadoop-3.3.6.tar.gz && rm hadoop-3.3.6.tar.gz
@@ -43,8 +43,6 @@ RUN wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
 RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
     chmod 0600 ~/.ssh/authorized_keys
-
-RUN mkdir -p tmpdata dfsdata/datanode dfsdata/namenode
 
 COPY --chown=${username}:${username} ./config/hadoop_paths /home/${username}/hadoop_paths
 RUN envsubst < /home/${username}/hadoop_paths > /home/${username}/.hadoop_paths && \
@@ -65,8 +63,8 @@ RUN envsubst < ${HADOOP_HOME}/etc/hadoop/core-site.xml.temp > ${HADOOP_HOME}/etc
 
 RUN hdfs namenode -format
 
-COPY ./installers/hive.sh .scripts/
-RUN sudo chmod +x .scripts/hive.sh && ./.scripts/hive.sh
+COPY --chown=${username}:${username} ./installers/hive.sh .scripts/
+RUN chmod +x .scripts/hive.sh && ./.scripts/hive.sh
 
 EXPOSE 9870 9864 9000 8088 22
 
