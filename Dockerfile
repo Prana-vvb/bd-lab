@@ -28,12 +28,14 @@ RUN apt install -y \
 RUN ssh-keygen -A
 RUN useradd --create-home --shell /bin/bash -G users,sudo ${username} && \
     yes ${password} | passwd ${username}
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 COPY ./entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
 USER ${username}
 WORKDIR /home/${username}
+RUN mkdir .scripts
 
 RUN wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz && \
     tar xzf hadoop-3.3.6.tar.gz && rm hadoop-3.3.6.tar.gz
@@ -59,9 +61,12 @@ COPY --chown=${username}:${username} \
     ${HADOOP_HOME}/etc/hadoop/
 RUN envsubst < ${HADOOP_HOME}/etc/hadoop/core-site.xml.temp > ${HADOOP_HOME}/etc/hadoop/core-site.xml && \
     envsubst < ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml.temp > ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml && \
-    rm ${HADOOP_HOME}/etc/hadoop/*.xml.temp 
+    rm ${HADOOP_HOME}/etc/hadoop/*.xml.temp
 
 RUN hdfs namenode -format
+
+COPY ./installers/hive.sh .scripts/
+RUN sudo chmod +x .scripts/hive.sh && ./.scripts/hive.sh
 
 EXPOSE 9870 9864 9000 8088 22
 
