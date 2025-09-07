@@ -1,19 +1,17 @@
 ARG username="pes2ug23cs928"
-ARG password="toor"
 
 FROM ubuntu:22.04
 
 ARG username
-ARG password
 
 ENV username=${username}
 ENV DEBIAN_FRONTEND=noninteractive
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ENV HADOOP_HOME=/home/${username}/hadoop-3.3.6
-ENV PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+ENV FLUME_HOME=/home/${username}/flume
+ENV PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$FLUME_HOME/bin
 
-RUN apt update && apt upgrade -y
-RUN apt install -y \
+RUN apt-get update && apt-get install -y \
     sudo \
     curl \
     git \
@@ -27,27 +25,23 @@ RUN apt install -y \
 
 RUN ssh-keygen -A
 RUN useradd --create-home --shell /bin/bash -G users,sudo ${username} && \
-    yes ${password} | passwd ${username}
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 COPY ./entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
 USER ${username}
 WORKDIR /home/${username}
+
 RUN mkdir -p tmpdata dfsdata/datanode dfsdata/namenode .scripts
 
-RUN wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz && \
-    tar xzf hadoop-3.3.6.tar.gz && rm hadoop-3.3.6.tar.gz
+ADD --chown=${username}:${username} ./installers/*.tar.gz /home/${username}/
 
 RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
     chmod 0600 ~/.ssh/authorized_keys
 
-COPY --chown=${username}:${username} ./config/hadoop_paths /home/${username}/hadoop_paths
-RUN envsubst < /home/${username}/hadoop_paths > /home/${username}/.hadoop_paths && \
-    rm /home/$username/hadoop_paths
-
+COPY --chown=${username}:${username} ./config/hadoop_paths /home/${username}/.hadoop_paths
 COPY --chown=${username}:${username} ./config/bashrc /home/${username}/.bashrc
 
 COPY --chown=${username}:${username} \
@@ -61,10 +55,16 @@ RUN envsubst < ${HADOOP_HOME}/etc/hadoop/core-site.xml.temp > ${HADOOP_HOME}/etc
     envsubst < ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml.temp > ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml && \
     rm ${HADOOP_HOME}/etc/hadoop/*.xml.temp
 
-RUN hdfs namenode -format
+COPY --chown=${username}:${username} ./installers/*.sh .scripts/
+RUN chmod +x .scripts/*.sh && \
+    ./.scripts/all.sh
 
-COPY --chown=${username}:${username} ./installers/hive.sh .scripts/
-RUN chmod +x .scripts/hive.sh && ./.scripts/hive.sh
+COPY --chown=${username}:${username} ./config/flume-conf* ${FLUME_HOME}/conf/
+RUN envsubst < ${FLUME_HOME}/conf/flume-conf_local > ${FLUME_HOME}/conf/flume-conf-local.properties && \
+    envsubst < ${FLUME_HOME}/conf/flume-conf_hdfs > ${FLUME_HOME}/conf/flume-conf-hdfs.properties && \
+    rm ${FLUME_HOME}/conf/flume-conf_*
+
+RUN hdfs namenode -format
 
 EXPOSE 9870 9864 9000 8088 22
 
