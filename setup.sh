@@ -24,4 +24,4 @@ else
     echo "Flume found. Skipping download."
 fi
 
-docker build --no-cache --build-arg username="$srn" -t bdlab2 .
+docker build --no-cache --build-arg username="$srn" -t bdlab .
