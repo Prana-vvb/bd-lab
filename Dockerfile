@@ -13,7 +13,6 @@ ENV PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$FLUME_HOME/bin
 
 RUN apt-get update && apt-get install -y \
     sudo \
-    curl \
     git \
     unzip \
     neovim \
@@ -33,7 +32,7 @@ RUN chmod +x /entrypoint.sh
 USER ${username}
 WORKDIR /home/${username}
 
-RUN mkdir -p tmpdata dfsdata/datanode dfsdata/namenode .scripts
+RUN mkdir -p tmpdata dfsdata/datanode dfsdata/namenode .scripts Desktop
 
 ADD --chown=${username}:${username} ./installers/*.tar.gz /home/${username}/
 
@@ -41,8 +40,7 @@ RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
     chmod 0600 ~/.ssh/authorized_keys
 
-COPY --chown=${username}:${username} ./config/hadoop_paths /home/${username}/.hadoop_paths
-COPY --chown=${username}:${username} ./config/bashrc /home/${username}/.bashrc
+COPY --chown=${username}:${username} ./config/.hadoop_paths ./config/.bashrc /home/${username}/
 
 COPY --chown=${username}:${username} \
     ./config/hadoop-env.sh \
@@ -53,7 +51,7 @@ COPY --chown=${username}:${username} \
     ${HADOOP_HOME}/etc/hadoop/
 RUN envsubst < ${HADOOP_HOME}/etc/hadoop/core-site.xml.temp > ${HADOOP_HOME}/etc/hadoop/core-site.xml && \
     envsubst < ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml.temp > ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml && \
-    rm ${HADOOP_HOME}/etc/hadoop/*.xml.temp
+    rm ${HADOOP_HOME}/etc/hadoop/*.temp
 
 COPY --chown=${username}:${username} ./installers/*.sh .scripts/
 RUN chmod +x .scripts/*.sh && \
@@ -66,7 +64,7 @@ RUN envsubst < ${FLUME_HOME}/conf/flume-conf_local > ${FLUME_HOME}/conf/flume-co
 
 RUN hdfs namenode -format
 
-EXPOSE 9870 9864 9000 8088 22
+EXPOSE 9870 9864 8088 8032 9000 22
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
