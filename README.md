@@ -19,7 +19,7 @@ chmod +x setup.sh
 ```
 
 ```bash
-docker run -it --rm -h <your srn as given in setup> -v bdata:/home -p 9870:9870 -p 8088:8088 -p 9864:9864 bdlab:latest
+docker run -it --rm -h <srn> -v bdata:/home/<srn>/Desktop -p 9870:9870 -p 8088:8088 -p 9864:9864 -p 8032:8032 bdlab:latest
 ```
 
 # Windows
@@ -36,13 +36,13 @@ Download the following into the `installers` directory
 Required to run only once unless changes made to `config/` or the Dockerfile
 
 ```bash
-docker build --build-arg username=<your srn in lowercase> --build-arg password=<your password> -t bdlab .
+docker build --no-cache --build-arg username=<your srn in lowercase> -t bdlab .
 ```
 
 ## To start
 
 ```bash
-docker run -it --rm -h <your srn as given in username> -v bdata:/home -p 9870:9870 -p 8088:8088 -p 9864:9864 bdlab:latest
+docker run -it --rm -h <srn> -v bdata:/home/<srn>/Desktop -p 9870:9870 -p 8088:8088 -p 9864:9864 -p 8032:8032 bdlab:latest
 ```
 
 > [!NOTE]
