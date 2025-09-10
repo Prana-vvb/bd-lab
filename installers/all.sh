@@ -2,3 +2,4 @@
 
 ~/.scripts/hive.sh
 ~/.scripts/flume.sh
+~/.scripts/pig.sh
