@@ -10,7 +10,7 @@ echo "export HIVE_HOME=/opt/hive" >> ~/.bashrc
 echo "export PATH=\$HIVE_HOME/bin:\$PATH" >> ~/.bashrc
 
 # Configure Hive Directories
-mkdir -p /opt/hive/hive_data/tmp
+sudo mkdir -p /opt/hive/hive_data/tmp
 sudo chown -R $USER:$USER /opt/hive
 
 # Configure hive-env.sh

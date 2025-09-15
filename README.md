@@ -31,6 +31,8 @@ Download the following into the `installers` directory
  - [Hive](https://archive.apache.org/dist/hive/hive-3.1.3/apache-hive-3.1.3-bin.tar.gz) 
  - [Flume](https://downloads.apache.org/flume/1.11.0/apache-flume-1.11.0-bin.tar.gz) 
  - [Pig](https://dlcdn.apache.org/pig/pig-0.17.0/pig-0.17.0.tar.gz) 
+ - [Sqoop](https://archive.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz ) 
+ - [JDBC](https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-9.4.0.tar.gz ) 
  - [Commons-lang](https://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar)
 
 ## Build
@@ -54,4 +56,4 @@ docker run -it --rm -h <srn> -v bdata:/home/<srn>/Desktop -p 9870:9870 -p 8088:8
 > Thus, it is recommended to temporarily create a copy of what you want to keep using `docker cp <Container ID>:/path/to/files /path/in/host/machine`
 > and then copy it back to the container.
 >
-> You can find the container ID using `docker ps`
+> You ccan find the container ID using `docker ps`

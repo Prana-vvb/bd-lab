@@ -14,27 +14,32 @@ ENV PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$FLUME_HOME/bin
 RUN apt-get update && apt-get install -y \
     sudo \
     git \
+    curl \
     unzip \
     neovim \
     openjdk-8-jdk \
     openssh-server \
     openssh-client \
-    gettext-base && \
+    gettext-base \
+    mysql-server && \
     rm -rf /var/lib/apt/lists/*
 
 RUN ssh-keygen -A
-RUN useradd --create-home --shell /bin/bash -G users,sudo ${username} && \
+RUN useradd --create-home --shell /bin/bash -G users,sudo,mysql ${username} && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 COPY ./entrypoint.sh /
 RUN chmod +x /entrypoint.sh
+
+RUN service mysql start && \
+    mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'; FLUSH PRIVILEGES;"
 
 USER ${username}
 WORKDIR /home/${username}
 
 RUN mkdir -p tmpdata dfsdata/datanode dfsdata/namenode .scripts Desktop
 
-ADD --chown=${username}:${username} ./installers/*.tar.gz /home/${username}/
+ADD --chown=${username}:${username} ./installers/*.tar.gz ./installers/commons-lang-2.6.jar /home/${username}/
 
 RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
@@ -60,7 +65,7 @@ RUN chmod +x .scripts/*.sh && \
 COPY --chown=${username}:${username} ./config/flume-conf* ${FLUME_HOME}/conf/
 RUN envsubst < ${FLUME_HOME}/conf/flume-conf_local > ${FLUME_HOME}/conf/flume-conf-local.properties && \
     envsubst < ${FLUME_HOME}/conf/flume-conf_hdfs > ${FLUME_HOME}/conf/flume-conf-hdfs.properties && \
-    rm ${FLUME_HOME}/conf/flume-conf_*
+    rm ${FLUME_HOME}/conf/flume-conf_* && mv ~/commons-lang-2.6.jar ~/sqoop-1.4.7/lib/
 
 RUN hdfs namenode -format
 

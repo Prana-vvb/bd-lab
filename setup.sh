@@ -4,6 +4,9 @@ hadoop=./installers/hadoop-3.3.6.tar.gz
 hive=./installers/apache-hive-3.1.3-bin.tar.gz
 flume=./installers/apache-flume-1.11.0-bin.tar.gz
 pig=./installers/pig-0.17.0.tar.gz
+SQOOP_VERSION="1.4.7"
+sqoop=./installers/sqoop-${SQOOP_VERSION}.tar.gz
+jdbc=./installers/mysql-connector.tar.gz
 commons_lang=./installers/commons-lang-2.6.jar
 
 read -p "Enter SRN in lowercase: " srn
@@ -33,10 +36,22 @@ else
     echo "Pig found. Skipping download."
 fi
 
+if [ ! -f "$sqoop" ]; then
+    wget -c https://archive.apache.org/dist/sqoop/${SQOOP_VERSION}/sqoop-${SQOOP_VERSION}.bin__hadoop-2.6.0.tar.gz -O ./installers/sqoop-${SQOOP_VERSION}.tar.gz
+else
+    echo "Sqoop found. Skipping download."
+fi
+
+if [ ! -f "$jdbc" ]; then
+    wget -c https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-9.4.0.tar.gz -O ./installers/mysql-connector.tar.gz
+else
+    echo "JDBC found. Skipping download."
+fi
+
 if [ ! -f "$commons_lang" ]; then
     wget -P ./installers https://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar
 else
     echo "Commons-lang found. Skipping download."
 fi
 
-docker build --no-cache --build-arg username="$srn" -t bdlab .
+docker build --no-cache --build-arg username="$srn" -t bdlab2 .
